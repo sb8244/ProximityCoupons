@@ -11,7 +11,7 @@
                     <?php } ?>
                     <div class='col-md-3'>
                         <div class='coupon-inlet'>
-                            <div class='map-canvas' data-lat='<?php echo $coupon->position->lat ?>' data-lng='<?php echo $coupon->position->lng ?>'></div>
+                            <div class='map-canvas' data-lat='<?php echo $coupon->position->coordinates[1] ?>' data-lng='<?php echo $coupon->position->coordinates[0] ?>'></div>
                             <p><?php echo $coupon->title ?></p>
                             <p><?php echo $coupon->description ?></p>
                         </div>

@@ -44,10 +44,13 @@ class CouponFinder
         $mongo = new \Mongo();
         $res = $mongo->yhack->command(array(
                 "geoNear" => "Coupon",
-                "near" => array($lng, $lat),
-                "spherical" => true
+                "near" => array(
+                   'type' => 'Point',
+                   'coordinates' => array($lng, $lat)     
+                ),
+                "spherical" => true,
+                'maxDistance' => 15000
         ));
-        
         $deals = array();
         foreach($res['results'] as $item)
         {
@@ -59,10 +62,16 @@ class CouponFinder
             }
             $id = $item['obj']['_id'];
             $coupon = Coupon::find($id);
+            
+            $unclaimed = $coupon->claimed_by == null 
+                    || !in_array($this->id, $coupon->claimed_by->export());
+            if(!$unclaimed) $valid = false;
+            
             $deals[] = array(
                 'meters' => $item['dis'],
                 'coupon' => $coupon,
-                'valid' => $valid
+                'valid' => $valid,
+                'claimed' => !$unclaimed
             );
         }
         return $deals;

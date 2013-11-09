@@ -35,17 +35,9 @@ class Bootstrap extends Zend_Application_Bootstrap_Bootstrap
     	));
     }
     
-    public function _initMongo()
-    {
-        $connection = new MongoClient();
-        $db = $connection->yhack;
-        
-        Zend_Registry::set('db', $db);
-    }
-    
     public function _initMockUser()
     {
-       // Zend_Auth::getInstance()->getStorage()->write(array('id'=>'527dadd3ac5597c01200002d', 'type'=>'company'));
+        //Zend_Auth::getInstance()->getStorage()->write(array('id'=>'527dadd3ac5597c01200002d', 'type'=>'company'));
         Zend_Auth::getInstance()->getStorage()->write(array('id'=>'527dd5cfac5597c812000036', 'type'=>'user'));
     }
     

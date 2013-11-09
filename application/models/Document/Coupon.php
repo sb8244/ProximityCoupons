@@ -12,8 +12,7 @@ class Coupon extends \Shanty_Mongo_Document
     		'title' => 'Required',
             'description' => 'Required',
             'position' => array('Document', 'Required'),
-            'position.lng' => 'Required',
-            'position.lat' => 'Required',
+            'position.coordinates' => 'Required',
             'claimed_by' => 'Validator:Array',
             'claimed_by.$' => 'Validator:MongoId'
     );

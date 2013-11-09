@@ -12,9 +12,13 @@ class CouponController extends Zend_Controller_Action
         /* Initialize action controller here */
     }
 
-    public function indexAction()
+    public function getclaimedAction()
     {
-        // action body
+        $user = Zend_Registry::get('user');
+        $claims = $user->claims->export();
+        $coupons = Coupon::fetchAll(array('_id' => array('$in' => $claims )))->export();
+        echo json_encode($coupons);
+        die();
     }
     
     public function redeemAction()
@@ -108,9 +112,9 @@ class CouponController extends Zend_Controller_Action
                 $coupon->claimed_by = array();
                 $coupon->title = $data['title'];
                 $coupon->description = $data['description'];
-                $coupon->position->lat = floatval($data['lat']);
-                $coupon->position->lng = floatval($data['long']);
-                
+                $coupon->position->type = 'Point';
+                $coupon->position->coordinates = array(floatval($data['long']), floatval($data['lat']));
+                $coupon->proximity = $data['proximity'];
                 $coupon->company = $company->getId();
                 $company->addToSet('active_coupons', $coupon->getId());
                 

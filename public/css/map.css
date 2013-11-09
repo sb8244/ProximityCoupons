@@ -44,12 +44,9 @@ header {
 	border-left: 4px solid rgb(35, 147, 203);
 }
 
-.locations ul li h2 {
-	float: left;
-}
+.inline { display: inline; }
 
 .distance {
-	float: left;
 	position: relative;
 	top: 4px;
 	margin-left: 10px;
@@ -57,19 +54,29 @@ header {
 	color: rgba(0,0,0,.4);
 }
 .location {
-	width: 8px;
+	width: 11px;
 	opacity: .4;
 }
 
 .locations ul li h4 {
+	/*width: 80%;*/
+	color: rgba(0,0,0,.7);
+}
+
+.left {
 	float: left;
 	width: 80%;
-	color: rgba(0,0,0,.7);
+}
+
+.right {
+	float: right;
+	width: 10%;
 }
 
 .claim {
 	position: absolute;
-	top: 30px;
+	top: 25%;
+	height: 50%;
 	right: 10px;
 	border: 1px solid rgba(0,0,0,.4);
 

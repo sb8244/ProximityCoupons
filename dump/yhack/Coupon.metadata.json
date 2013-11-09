@@ -1,1 +1,1 @@
-{ "indexes" : [ { "v" : 1, "key" : { "_id" : 1 }, "ns" : "yhack.Coupon", "name" : "_id_" }, { "v" : 1, "key" : { "position" : "2d" }, "ns" : "yhack.Coupon", "name" : "position_2d" }, { "v" : 1, "key" : { "position" : "2dsphere" }, "ns" : "yhack.Coupon", "name" : "position_2dsphere" } ] }
+{ "indexes" : [ { "v" : 1, "key" : { "_id" : 1 }, "ns" : "yhack.Coupon", "name" : "_id_" }, { "v" : 1, "key" : { "position" : "2dsphere" }, "ns" : "yhack.Coupon", "name" : "position_2dsphere" } ] }

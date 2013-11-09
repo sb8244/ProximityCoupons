@@ -39,13 +39,15 @@ function initialize() {
         navigator.geolocation.getCurrentPosition(function (position) {
             initialLocation = new google.maps.LatLng(position.coords.latitude, position.coords.longitude);
             map.setCenter(initialLocation);
-
             placeMarker(map.getCenter());
+        }, function(error) {
+            alert(error.message);
+        }, {
+            timeout: '2000'
         });
+    } else {
+        alert("not supported");
     }
-    google.maps.event.addListener(map, 'click', function (event) {
-        placeMarker(event.latLng);
-    });
 
     function clearMarkers() {
         for (var i = 0; i < markers.length; i++)
@@ -70,7 +72,6 @@ function initialize() {
                 var lng = position.coords.longitude;
                 var url = '<?php echo $this->url(array('controller'=>'coupon', 'action'=>'locate'), null, true) ?>';
                 url += "?lat=" + lat + "&lng=" + lng;
-
                 $.get(url, function(data) {
                     data = JSON.parse(data);
                     $("#location-list").empty();
@@ -78,10 +79,19 @@ function initialize() {
                     {
                         console.log(data[i]);
                         var li = $("<li>");
-                        li.append("<h2>" + data[i].coupon.title + "</h2>");
-                        li.append("<div class='distance'><img class='location' src='/YHack/public/images/location.png' />" + (data[i].meters/1000).toFixed(1) + " KM</div>");
-                        li.append("<h4>" + data[i].coupon.description + "</h4>");
-                        li.append("<button class='claim'>Claim</button>");
+                        var rightDiv = $("<div class='right'>");
+                        var leftDiv = $("<div class='left'>");
+                        leftDiv.append("<h2 class='inline'>" + data[i].coupon.title + "</h2>");
+                        leftDiv.append("<span class='distance'><img class='location' src='/YHack/public/images/location.png' /> " + (data[i].meters/1000).toFixed(1) + " KM</span>");
+                        leftDiv.append("<h4>" + data[i].coupon.description + "</h4>");
+                        if(data[i].valid == true)
+                            rightDiv.append("<button data-id='" + data[i].coupon._id.$id + "' class='active claim'>Claim</button>");
+                        else if(data[i].claimed == true)
+                            rightDiv.append("<button class='inactive claim'>Claimed</button>");
+                        else if(data[i].valid != true)
+                            rightDiv.append("<button class='inactive claim'>Unavail.</button>");
+                        li.append(rightDiv);
+                        li.append(leftDiv);
                         $("#location-list").append(li);
                     }
                 });
@@ -89,8 +99,30 @@ function initialize() {
     	}
     }
     window.refresh = refresh;
-    //setInterval(refresh, 15000);
+    refresh();
+   // setInterval(refresh, 15000);
+
+    $("body").on("click", ".active.claim", function(e) {
+        var self = $(this);
+        navigator.geolocation.getCurrentPosition(function (position) {
+        	var lat = position.coords.latitude;
+            var lng = position.coords.longitude;
+            var id = self.data('id');
+            var url = '<?php echo $this->url(array('controller'=>'coupon', 'action'=>'redeem')) ?>';
+            url += "?lat=" + lat + "&lng=" + lng + "&id=" + id;
+            var postData = {lat: lat, lng: lng, id: id};
+            $.post(url, postData, function(data) {
+                data = JSON.parse(data);
+                if(data['status'] == 200) {
+                    //successful
+                    self.removeClass("active").addClass("inactive").text("Claimed");
+                    var di
+                } else if(data['status'] == 500) {
+                    //invalid but all filled out
+                }
+            });
+        });
+    });
 }
 google.maps.event.addDomListener(window, 'load', initialize);
-
 </script>
