@@ -1,0 +1,16 @@
+!!! 5
+%html
+	%head
+		%title
+			= @title
+		%script{:type=>"text/javascript", :src=>"https://js.stripe.com/v2/"}
+		%script{:type=>"text/javascript", :src=>"https://maps.googleapis.com/maps/api/js?v=3.exp&sensor=false"}
+		-# %script{:type => "text/javascript", :src => "/javascript/analytics.js"}
+
+		%link{:href => "images/favicon.ico", :rel => "icon", :type => "image/x-icon"}
+		- @css.each do |filename|
+			%link{:rel => "stylesheet", :type => "text/css", :href => "/css/#{filename}.css"}
+		- @js.each do |filename|
+			%script{:type => "text/javascript", :src => "/javascript/#{filename}.js"}
+	%body
+		= yield
