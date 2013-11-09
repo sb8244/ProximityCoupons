@@ -12,6 +12,16 @@ class CouponController extends Zend_Controller_Action
         /* Initialize action controller here */
     }
 
+    public function detailAction()
+    {
+        $this->_helper->_layout->setLayout('user');
+        $id = $this->_getParam("id");
+        $coupon = Coupon::find($id);
+        $company = Company::find($coupon->company);
+        $this->view->coupon = $coupon;
+        $this->view->company = $company;
+    }
+    
     public function getclaimedAction()
     {
         $user = Zend_Registry::get('user');

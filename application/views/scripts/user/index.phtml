@@ -1,11 +1,4 @@
-<header>
-  <h2 class="logo">
-    Coupon
-  </h2>
-  <a class="nav">
-    <img src="/YHack/public/images/nav.png" />
-  </a>
-</header>
+
 <section id='map' class="map"></section>
 <section class="locations">
   <ul id='location-list'>
@@ -39,7 +32,6 @@ function initialize() {
         navigator.geolocation.getCurrentPosition(function (position) {
             initialLocation = new google.maps.LatLng(position.coords.latitude, position.coords.longitude);
             map.setCenter(initialLocation);
-            placeMarker(map.getCenter());
         }, function(error) {
             alert(error.message);
         }, {
@@ -55,11 +47,19 @@ function initialize() {
         markers = [];
     }
 
-    function placeMarker(location) {
-        clearMarkers();
+    function placeRedMarker(location) {
         var marker = new google.maps.Marker({
             position: location,
-            map: map
+            map: map,
+            icon: 'http://maps.google.com/mapfiles/ms/icons/red-dot.png'
+        });
+        markers.push(marker);
+    }
+    function placeGreenMarker(location) {
+        var marker = new google.maps.Marker({
+            position: location,
+            map: map,
+            icon: 'http://maps.google.com/mapfiles/ms/icons/green-dot.png'
         });
         markers.push(marker);
     }
@@ -77,6 +77,8 @@ function initialize() {
                     $("#location-list").empty();
                     for(var i = 0; i < data.length; i++)
                     {
+                        var lng = data[i].coupon.position.coordinates[0];
+                        var lat = data[i].coupon.position.coordinates[1];
                         console.log(data[i]);
                         var li = $("<li>");
                         var rightDiv = $("<div class='right'>");
@@ -85,11 +87,20 @@ function initialize() {
                         leftDiv.append("<span class='distance'><img class='location' src='/YHack/public/images/location.png' /> " + (data[i].meters/1000).toFixed(1) + " KM</span>");
                         leftDiv.append("<h4>" + data[i].coupon.description + "</h4>");
                         if(data[i].valid == true)
+                        {
                             rightDiv.append("<button data-id='" + data[i].coupon._id.$id + "' class='active claim'>Claim</button>");
+                            placeGreenMarker(new google.maps.LatLng(lat, lng));
+                        }
                         else if(data[i].claimed == true)
-                            rightDiv.append("<button class='inactive claim'>Claimed</button>");
+                        {
+                            placeRedMarker(new google.maps.LatLng(lat, lng));
+                            rightDiv.append("<button data-id='" + data[i].coupon._id.$id + "' class='claimed claim'>Claimed</button>");
+                        }
                         else if(data[i].valid != true)
+                        {
+                            placeRedMarker(new google.maps.LatLng(lat, lng));
                             rightDiv.append("<button class='inactive claim'>Unavail.</button>");
+                        }
                         li.append(rightDiv);
                         li.append(leftDiv);
                         $("#location-list").append(li);
@@ -100,8 +111,14 @@ function initialize() {
     }
     window.refresh = refresh;
     refresh();
-   // setInterval(refresh, 15000);
+    setInterval(refresh, 15000);
 
+    
+    $("body").on("click", ".claimed", function(e) {
+        var id = $(this).data('id');
+        var url = '<?php echo $this->url(array('controller'=>'coupon', 'action'=>'detail')) ?>/id/' + id;
+        window.location.href=url;
+    });
     $("body").on("click", ".active.claim", function(e) {
         var self = $(this);
         navigator.geolocation.getCurrentPosition(function (position) {
@@ -116,7 +133,7 @@ function initialize() {
                 if(data['status'] == 200) {
                     //successful
                     self.removeClass("active").addClass("inactive").text("Claimed");
-                    var di
+                    window.location.href = '<?php echo $this->url(array('controller'=>'coupon', 'action'=>'detail')) ?>/id/' + id;
                 } else if(data['status'] == 500) {
                     //invalid but all filled out
                 }

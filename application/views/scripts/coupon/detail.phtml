@@ -1,0 +1,30 @@
+
+<section class="wrapper">
+	<h2><?php echo $this->coupon->title; ?></h2>
+	<h3><?php echo $this->coupon->description ?></h3>
+	<br/>
+	<p>
+	   Redeem at: <?php echo $this->company->address ?>
+	</p>
+	<br/>
+	<div class='img-wrap'>
+	   <img class="barcode" src="/YHack/public/images/qr.png" />
+	</div>
+	<h1>Enjoy!</h1>
+</section>
+
+<style>
+body {
+	margin-top: 0px;
+}
+
+.wrapper {
+	padding: 10px;
+	padding-top: 50px;
+}
+
+.img-wrap {
+	width: 50%;
+	margin: 0 auto;
+}
+</style>
