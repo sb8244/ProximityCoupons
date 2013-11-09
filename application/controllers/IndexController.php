@@ -1,6 +1,9 @@
 <?php
 
 use Application\Model\Document\User;
+use Application\Model\Document\Company;
+use Application\Model\Document\Coupon;
+
 class IndexController extends Zend_Controller_Action
 {
 
@@ -11,16 +14,16 @@ class IndexController extends Zend_Controller_Action
 
     public function indexAction()
     {
-        /* @var $em \Doctrine\ODM\MongoDB\DocumentManager */
-        $em = Zend_Registry::get('em');
-        $userModel = $em->getRepository('Application\Model\Document\User');
-        $res = $userModel->findAll();
-        
-        foreach($res as $item) 
-            \Doctrine\Common\Util\Debug::dump($item);
-        die();
+        if(Zend_Registry::isRegistered('type'))
+        {
+            $type = Zend_Registry::get('type');
+            if($type == 'company') {
+                $this->_forward('index', 'company');
+            } else if($type == 'user') {
+                $this->_forward('index', 'user');
+            }
+        }
     }
-
 
 }
 

@@ -1,0 +1,156 @@
+<!-- Coupons -->
+<div class='col-md-12'>
+    <div class='row'>
+        <div class='well'>
+            <h2>Active Coupons</h2>
+            <?php $count = 0; ?>
+            <div class='row'>
+                <?php foreach($this->activeCoupons as $coupon) { ?>
+                    <?php if(++$count % 4 == 0) { ?>
+                        </div><div class='row'>
+                    <?php } ?>
+                    <div class='col-md-3'>
+                        <div class='coupon-inlet'>
+                            <div class='map-canvas' data-lat='<?php echo $coupon->position->lat ?>' data-lng='<?php echo $coupon->position->lng ?>'></div>
+                            <p><?php echo $coupon->title ?></p>
+                            <p><?php echo $coupon->description ?></p>
+                        </div>
+                    </div>
+                <?php } ?>
+            </div>
+        </div>
+    </div>
+</div>
+<!-- Setup new Coupon -->
+
+<div class='col-md-12'>
+    <div class='row'>
+        <div class='well'>
+            <h2>Setup New Coupon</h2>
+            <form id='new-form' class='form' action='<?php echo $this->url(array('controller'=>'coupon', 'action'=>'create')) ?>' method='post'>
+                <div class='form-group'>
+                    <label>Pick your coupon's location</label>
+                    <div id="map-canvas"/>
+                </div>
+                <div class='form-group'>
+                    <label>Select your proximity</label>
+                    <select name='proximity' class='form-control'>
+                        <option value='50'>50 meters</option>
+                        <option value='250'>250 meters</option>
+                        <option value='500'>500 meters</option>
+                        <option value='1000'>1 KM</option>
+                    </select>
+                </div>
+                <div class='form-group'>
+                    <label>Title it</label>
+                    <input type='text' name='title' class='form-control' length='100' placeholder='You only get 100 characters' />
+                </div>
+                <div class='form-group'>
+                    <label>Describe it</label>
+                    <input type='text' name='description' class='form-control' length='100' placeholder='You only get 100 characters' />
+                </div>
+                <div id='errors'>
+                
+                </div>
+                <div class='form-group'>
+                    <input type='submit' value='Post it' class='form-control btn-primary' />
+                </div>
+                <input type='hidden' name='lat' id='lat' />
+                <input type='hidden' name='long' id='long'/>
+            </form>
+        </div>
+    </div>
+</div>
+    
+    
+    <style>
+    #map-canvas {
+    	width: 100%;
+    	height: 250px;
+    }
+    .map-canvas {
+    	width: 100%;
+    	height: 150px;
+    }
+    </style>
+    
+    <script type="text/javascript">    
+    $("#new-form").submit(function(e) {
+        e.preventDefault();
+
+        var data = $(this).serialize();
+        var url = $(this).attr('action');
+
+        $.post(url, data).success(function(data) {
+            data = JSON.parse(data);
+            var errors = $("#errors");
+            errors.empty();
+            if(data['status'] == 200)
+            {
+            }
+            else if(data['status'] == 500) 
+            {
+                var keys = Object.keys(data.errors);
+                for(var i = 0; i < keys.length; i++)
+                {
+                    errors.append("<p class='alert alert-danger'><button type='button' class='close' data-dismiss='alert' aria-hidden='true'>&times;</button>"
+                    	    + data.errors[keys[i]] + "</p>");
+                }
+            }
+        });
+        
+        return false;
+    });
+    $(".map-canvas").each(function(i, el) {
+        var loc = new google.maps.LatLng($(el).data('lat'), $(el).data('lng'));
+    	var mapOptions = {
+          center: loc,
+          zoom: 14,
+          mapTypeId: google.maps.MapTypeId.ROADMAP
+        };
+        var map = new google.maps.Map(el, mapOptions);
+        var marker = new google.maps.Marker({
+  	      position: loc,
+  	      map: map
+    	});
+    });
+      function initialize() {
+        var markers = [];
+        var mapOptions = {
+          center: new google.maps.LatLng(-34.397, 150.644),
+          zoom: 14,
+          mapTypeId: google.maps.MapTypeId.ROADMAP
+        };
+        var map = new google.maps.Map(document.getElementById("map-canvas"),
+            mapOptions);
+        if (navigator.geolocation) {
+            navigator.geolocation.getCurrentPosition(function (position) {
+                initialLocation = new google.maps.LatLng(position.coords.latitude, position.coords.longitude);
+                map.setCenter(initialLocation);
+    
+                placeMarker(map.getCenter());
+            });
+        }
+        google.maps.event.addListener(map, 'click', function(event) {
+            placeMarker(event.latLng);
+        });
+    
+        function clearMarkers() {
+            for(var i = 0; i < markers.length; i++)
+                markers[i].setMap(null);
+            markers = [];
+        }
+        
+        function placeMarker(location) {
+          clearMarkers();
+      	  var marker = new google.maps.Marker({
+      	      position: location,
+      	      map: map
+      	  });
+          markers.push(marker);
+          $("#lat").val(location.lat());
+          $("#long").val(location.lng());
+        }
+      }
+      google.maps.event.addDomListener(window, 'load', initialize);
+    </script>

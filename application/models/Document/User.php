@@ -2,26 +2,15 @@
 
 namespace Application\Model\Document;
 
-use Doctrine\ODM\MongoDB\Mapping\Annotations as ODM;
-
-/**
- * @ODM\Document
- */
-class User
+class User extends \Shanty_Mongo_Document
 {
-    /**
-     * @ODM\Id
-     */
-    public $id;
-
-    /**
-     * @ODM\String
-     */
-    public $email;
-
-    /**
-     * @ODM\String
-     */
-    public $password;
+    protected static $_db = "yhack";
+    protected static $_collection = 'User';
     
+    protected static $_requirements = array(
+            'password' => 'Required',
+            'email' => array('Required', 'Validator:EmailAddress'),
+            'claims' => 'Validator:Array',
+            'claims.$' => 'Validator:MongoId'
+    );
 }

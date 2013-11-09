@@ -1,5 +1,10 @@
 <?php
 
+use Doctrine\ODM\MongoDB\Mapping\Driver\AnnotationDriver;
+use Doctrine\Common\Persistence\PersistentObject;
+use Application\Model\Document\Company;
+use Application\Model\Document\User;
+
 class Bootstrap extends Zend_Application_Bootstrap_Bootstrap
 {
     protected function _initAutoloader()
@@ -30,35 +35,40 @@ class Bootstrap extends Zend_Application_Bootstrap_Bootstrap
     	));
     }
     
-    protected function _initMongoDoctrine()
+    public function _initMongo()
     {
-    	require 'Doctrine/Common/ClassLoader.php';
+        $connection = new MongoClient();
+        $db = $connection->yhack;
+        
+        Zend_Registry::set('db', $db);
+    }
     
-    	$classLoader = new \Doctrine\Common\ClassLoader('Doctrine');
-    	$classLoader->register();
-    	
-    	\Doctrine\Common\Annotations\AnnotationRegistry::registerFile(APPLICATION_PATH . '/../library/Doctrine/ODM/MongoDB/Mapping/Annotations/DoctrineAnnotations.php');
+    public function _initMockUser()
+    {
+       // Zend_Auth::getInstance()->getStorage()->write(array('id'=>'527dadd3ac5597c01200002d', 'type'=>'company'));
+        Zend_Auth::getInstance()->getStorage()->write(array('id'=>'527dd5cfac5597c812000036', 'type'=>'user'));
+    }
     
-    	$entitiesPath = APPLICATION_PATH . '/models/Document';
-    	$proxiesPath  = APPLICATION_PATH . '/models/Proxy';
-    	$hydratorPath  = APPLICATION_PATH . '/models/Hydrator';
-    
-    	$config = new \Doctrine\ODM\MongoDB\Configuration();
-    	$driverImpl = $config->newDefaultAnnotationDriver($entitiesPath);
-    
-    	$config->setMetadataDriverImpl($driverImpl);
-    	$config->setProxyDir($proxiesPath);
-    	$config->setProxyNamespace('domain\Proxies');
-    	$config->setHydratorDir($hydratorPath);
-    	$config->setHydratorNamespace('domain\Hydrators');
-    	$config->setAutoGenerateProxyClasses(true);
-    	$config->setAutoGenerateHydratorClasses(true);
-    	$config->setDefaultDB("yhack");
-    
-    	$em = \Doctrine\ODM\MongoDB\DocumentManager::create(new \Doctrine\MongoDB\Connection(), $config);
-    	Zend_Registry::set('em', $em);
-    		
-    	return $em;
+    public function _initUser()
+    {
+        $auth = Zend_Auth::getInstance();
+        if($auth->hasIdentity())
+        {
+            $storage = $auth->getStorage()->read();
+            $id = $storage['id'];
+            if($storage['type'] == 'company')
+            {
+                $company = Company::find($id);
+                Zend_Registry::set('user', $company);
+                Zend_Registry::set('type', 'company');
+            }
+            else if($storage['type'] == 'user')
+            {
+                $user = User::find($id);
+                Zend_Registry::set('user', $user);
+                Zend_Registry::set('type', 'user');
+            }
+        }
     }
 }
 
