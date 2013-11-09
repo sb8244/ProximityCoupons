@@ -1,0 +1,96 @@
+<header>
+  <h2 class="logo">
+    Coupon
+  </h2>
+  <a class="nav">
+    <img src="/YHack/public/images/nav.png" />
+  </a>
+</header>
+<section id='map' class="map"></section>
+<section class="locations">
+  <ul id='location-list'>
+    <li class="selected">
+      <h2>
+        Waiting
+      </h2>
+      <div class="distance">
+        <img class="location" src="/YHack/public/images/location.png" />
+      </div>
+      <h4>
+        Waiting on your location
+      </h4>
+    </li>
+  </ul>
+</section>
+
+
+<script type="text/javascript">
+
+function initialize() {
+    var markers = [];
+    var mapOptions = {
+        center: new google.maps.LatLng(-34.397, 150.644),
+        zoom: 14,
+        mapTypeId: google.maps.MapTypeId.ROADMAP
+    };
+    var map = new google.maps.Map(document.getElementById("map"),
+        mapOptions);
+    if (navigator.geolocation) {
+        navigator.geolocation.getCurrentPosition(function (position) {
+            initialLocation = new google.maps.LatLng(position.coords.latitude, position.coords.longitude);
+            map.setCenter(initialLocation);
+
+            placeMarker(map.getCenter());
+        });
+    }
+    google.maps.event.addListener(map, 'click', function (event) {
+        placeMarker(event.latLng);
+    });
+
+    function clearMarkers() {
+        for (var i = 0; i < markers.length; i++)
+            markers[i].setMap(null);
+        markers = [];
+    }
+
+    function placeMarker(location) {
+        clearMarkers();
+        var marker = new google.maps.Marker({
+            position: location,
+            map: map
+        });
+        markers.push(marker);
+    }
+
+    function refresh()
+    {
+    	if (navigator.geolocation) {
+            navigator.geolocation.getCurrentPosition(function (position) {
+                var lat = position.coords.latitude;
+                var lng = position.coords.longitude;
+                var url = '<?php echo $this->url(array('controller'=>'coupon', 'action'=>'locate'), null, true) ?>';
+                url += "?lat=" + lat + "&lng=" + lng;
+
+                $.get(url, function(data) {
+                    data = JSON.parse(data);
+                    $("#location-list").empty();
+                    for(var i = 0; i < data.length; i++)
+                    {
+                        console.log(data[i]);
+                        var li = $("<li>");
+                        li.append("<h2>" + data[i].coupon.title + "</h2>");
+                        li.append("<div class='distance'><img class='location' src='/YHack/public/images/location.png' />" + (data[i].meters/1000).toFixed(1) + " KM</div>");
+                        li.append("<h4>" + data[i].coupon.description + "</h4>");
+                        li.append("<button class='claim'>Claim</button>");
+                        $("#location-list").append(li);
+                    }
+                });
+            });
+    	}
+    }
+    window.refresh = refresh;
+    //setInterval(refresh, 15000);
+}
+google.maps.event.addDomListener(window, 'load', initialize);
+
+</script>
